@@ -19,19 +19,11 @@ def construct_dataloader(cfg_data, cfg_impl, user_idx=0, return_full_dataset=Fal
 
     Use return_full_dataset=True to return the full dataset instead (for example for analysis).
     """
-    if cfg_data.modality == "vision":
-        from .datasets_vision import _build_dataset_vision, _split_dataset_vision
+    # cfg_data.modality == "vision":
+    from .datasets_vision import _build_dataset_vision, _split_dataset_vision
 
-        dataset, collate_fn = _build_dataset_vision(cfg_data, split=cfg_data.examples_from_split, can_download=True)
-        dataset = _split_dataset_vision(dataset, cfg_data, user_idx, return_full_dataset)
-    elif cfg_data.modality == "text":
-        from .datasets_text import _build_and_split_dataset_text
-
-        dataset, collate_fn = _build_and_split_dataset_text(
-            cfg_data, cfg_data.examples_from_split, user_idx, return_full_dataset,
-        )
-    else:
-        raise ValueError(f"Unknown data modality {cfg_data.modality}.")
+    dataset, collate_fn = _build_dataset_vision(cfg_data, split=cfg_data.examples_from_split, can_download=True)
+    dataset = _split_dataset_vision(dataset, cfg_data, user_idx, return_full_dataset)
 
     if len(dataset) == 0:
         raise ValueError("This user would have no data under the chosen partition, user id and number of clients.")
@@ -50,12 +42,12 @@ def construct_dataloader(cfg_data, cfg_impl, user_idx=0, return_full_dataset=Fal
             if torch.get_num_threads() > 1
             else 0
         )
-    else:
+    else:   # NOTE(dchu): FISHING
         num_workers = 0
 
     if cfg_impl.shuffle:
         data_sampler = torch.utils.data.RandomSampler(dataset, replacement=cfg_impl.sample_with_replacement)
-    else:
+    else:   # NOTE(dchu): FISHING
         data_sampler = torch.utils.data.SequentialSampler(dataset)
     dataloader = torch.utils.data.DataLoader(
         dataset,

@@ -21,7 +21,7 @@ import logging
 log = logging.getLogger(__name__)
 
 
-class OptimizationBasedAttacker(_BaseAttacker):
+class OptimizationBasedAttacker(_BaseAttacker):   # NOTE(dchu): FISHING
     """Implements a wide spectrum of optimization-based attacks."""
 
     def __init__(self, model, loss_fn, cfg_attack, setup=dict(dtype=torch.float, device=torch.device("cpu"))):
@@ -29,10 +29,10 @@ class OptimizationBasedAttacker(_BaseAttacker):
         objective_fn = objective_lookup.get(self.cfg.objective.type)
         if objective_fn is None:
             raise ValueError(f"Unknown objective type {self.cfg.objective.type} given.")
-        else:
+        else:   # NOTE(dchu): FISHING
             self.objective = objective_fn(**self.cfg.objective)
         self.regularizers = []
-        try:
+        try:   # NOTE(dchu): FISHING
             for key in self.cfg.regularization.keys():
                 if self.cfg.regularization[key].scale > 0:
                     self.regularizers += [regularizer_lookup[key](self.setup, **self.cfg.regularization[key])]
@@ -44,7 +44,7 @@ class OptimizationBasedAttacker(_BaseAttacker):
             for key in self.cfg.augmentations.keys():
                 self.augmentations += [augmentation_lookup[key](**self.cfg.augmentations[key])]
             self.augmentations = torch.nn.Sequential(*self.augmentations).to(**setup)
-        except AttributeError:
+        except AttributeError:   # NOTE(dchu): FISHING
             self.augmentations = torch.nn.Sequential()  # No augmentations selected.
 
     def __repr__(self):

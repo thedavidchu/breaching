@@ -202,7 +202,7 @@ def get_base_cwd():
         return os.getcwd()
 
 
-def overview(server, user, attacker):
+def overview(server, user, attacker):   # NOTE(dchu): FISHING
     num_params, num_buffers = (
         sum([p.numel() for p in user.model.parameters()]),
         sum([b.numel() for b in user.model.buffers()]),

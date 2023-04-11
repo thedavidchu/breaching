@@ -12,23 +12,16 @@ log = logging.getLogger(__name__)
 
 def construct_user(model, loss_fn, cfg_case, setup):
     """Interface function."""
-    if cfg_case.user.user_type == "local_gradient":
-        dataloader = construct_dataloader(cfg_case.data, cfg_case.impl, user_idx=cfg_case.user.user_idx)
-        # The user will deepcopy this model template to have their own
-        user = UserSingleStep(model, loss_fn, dataloader, setup, idx=cfg_case.user.user_idx, cfg_user=cfg_case.user)
-    elif cfg_case.user.user_type == "local_update":
-        dataloader = construct_dataloader(cfg_case.data, cfg_case.impl, user_idx=cfg_case.user.user_idx)
-        user = UserMultiStep(model, loss_fn, dataloader, setup, idx=cfg_case.user.user_idx, cfg_user=cfg_case.user)
-    elif cfg_case.user.user_type == "multiuser_aggregate":
-        dataloaders, indices = [], []
-        for idx in range(*cfg_case.user.user_range):
-            dataloaders += [construct_dataloader(cfg_case.data, cfg_case.impl, user_idx=idx)]
-            indices += [idx]
-        user = MultiUserAggregate(model, loss_fn, dataloaders, setup, cfg_case.user, user_indices=indices)
+    # cfg_case.user.user_type == "multiuser_aggregate":  # NOTE(dchu): FISHING
+    dataloaders, indices = [], []
+    for idx in range(*cfg_case.user.user_range):
+        dataloaders += [construct_dataloader(cfg_case.data, cfg_case.impl, user_idx=idx)]
+        indices += [idx]
+    user = MultiUserAggregate(model, loss_fn, dataloaders, setup, cfg_case.user, user_indices=indices)
     return user
 
 
-class UserSingleStep(torch.nn.Module):
+class UserSingleStep(torch.nn.Module):  # NOTE(dchu): FISHING
     """A user who computes a single local update step."""
 
     def __init__(self, model, loss, dataloader, setup, idx, cfg_user):
@@ -305,7 +298,7 @@ class UserSingleStep(torch.nn.Module):
                 print(label_classes)
 
 
-class UserMultiStep(UserSingleStep):
+class UserMultiStep(UserSingleStep):    # NOTE(dchu): FISHING
     """A user who computes multiple local update steps as in a FedAVG scenario."""
 
     def __init__(self, model, loss, dataloader, setup, idx, cfg_user):
